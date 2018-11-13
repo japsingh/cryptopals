@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Base64.h"
 #include "Types.h"
-#include "Converter.h"
+#include "Utils.h"
 
 static const char ALPHABET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const char PAD = '=';
@@ -20,7 +20,7 @@ std::string SetOfFour(const byte_t setOf3[3])
 bool Base64::Encode(const std::string &hexString, std::string &base64)
 {
 	ByteVector byteArray;
-	if (!Converter::ConvertHexStringToByteArray(hexString, byteArray)) {
+	if (!Utils::ConvertHexStringToByteArray(hexString, byteArray)) {
 		return false;
 	}
 
