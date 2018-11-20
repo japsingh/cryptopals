@@ -15,4 +15,10 @@ public:
 
 	static void ByteFrequencyAnalysis(const ByteVector &bytes, ByteFrequencyMap &result);
 	static void BytePairFrequencyAnalysis(const ByteVector &bytes, BytePairFrequencyMap &result);
+
+	static double GetEnglishCharFrequency(char c);
+
+	static bool EnglishStringFrequencyAnalysis(const std::string &str, ByteFrequencyMap &result);
+	static void EnglishStringPairFrequencyAnalysis(const std::string &str, BytePairFrequencyMap &result);
+	static double GetEnglishStringFrequencyScore(const std::string &str);
 };

@@ -17,9 +17,24 @@ bool Utils::IsNumber(char c)
 	return (c >= '0' && c <= '9');
 }
 
+bool Utils::IsAlpha(char c)
+{
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+bool Utils::IsPrintable(int c)
+{
+	return (c > 0 && c <= 127) && !!isprint(c);
+}
+
 bool Utils::IsHexDigit(char c)
 {
 	return (IsHexAlpha(c) || IsNumber(c));
+}
+
+char Utils::ToUpper(char c)
+{
+	return ((c >= 'a' && c <= 'z') ? (c - 32) : c);
 }
 
 byte_t Utils::LeftNibble(byte_t b)
@@ -109,6 +124,21 @@ bool Utils::ConvertByteArrayToAsciiString(const ByteVector & bytes, std::string 
 	}
 
 	return true;
+}
+
+void Utils::ConvertAsciiStringToByteArray(const std::string &ascii, ByteVector &bytes)
+{
+	bytes.clear();
+	for (auto c : ascii) {
+		bytes.push_back(c);
+	}
+}
+
+bool Utils::ConvertAsciiStringToHexString(const std::string &ascii, std::string &hex)
+{
+	ByteVector bytes;
+	ConvertAsciiStringToByteArray(ascii, bytes);
+	return ConvertByteArrayToHexString(bytes, hex);
 }
 
 bool Utils::ConvertNibbleToHexAlphabet(byte_t nibble, char &hexAlphabet,
