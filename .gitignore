@@ -15,3 +15,5 @@
 Set1/.vs/Set1/v15/.suo
 Set1/Challenge1/.vs/Challenge1/v15/.suo
 *.iobj
+*.db-wal
+*.db-shm
