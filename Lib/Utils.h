@@ -7,7 +7,6 @@ public:
 	static bool IsEven(size_t n);
 	static bool IsNumber(char c);
 	static bool IsAlpha(char c);
-	static bool IsPrintable(int c);
 	static bool IsHexAlpha(char c);
 	static bool IsHexDigit(char c);
 	static char ToUpper(char c);

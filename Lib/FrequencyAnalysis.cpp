@@ -2,6 +2,7 @@
 #include "FrequencyAnalysis.h"
 #include "Utils.h"
 #include <math.h>
+#include <iostream>
 
 std::map<char, double> ENGLISH_FREQ = {
 	{ 'E', 0.1202 }, { 'T', 0.091 }, { 'A', 0.0812 }, { 'O', 0.0768 },
@@ -37,12 +38,17 @@ void FrequencyAnalysis::BytePairFrequencyAnalysis(const ByteVector & bytes, Byte
 	}
 }
 
+bool IsAcceptableChar(char c)
+{
+	return (c >= 32 && c <= 126) || (c == '\n') || (c == '\r') || (c == '\t');
+}
+
 bool EnglishStringToBytes(const std::string &str, ByteVector &bytes)
 {
 	bytes.clear();
 
 	for (auto c : str) {
-		if (!Utils::IsPrintable(c)) {
+		if (!IsAcceptableChar(c)) {
 			return false;
 		}
 		if (Utils::IsAlpha(c)) {
@@ -82,15 +88,15 @@ double FrequencyAnalysis::GetEnglishStringFrequencyScore(const std::string & str
 		return NAN;
 	}
 
-	double sumofsquares = 0;
+	double totalDeviation = 0;
 	for (auto byteFreq : freqMap) {
 		char c = (char)byteFreq.first;
 		double englishCharFreq = GetEnglishCharFrequency(c);
-		double diff = byteFreq.second.fractionOfTotal - englishCharFreq;
-		sumofsquares += (diff * diff);
+		double diff = std::abs(byteFreq.second.fractionOfTotal - englishCharFreq);
+		totalDeviation += diff;
 	}
 
-	return sumofsquares / freqMap.size();
+	return totalDeviation / freqMap.size();
 }
 
 double FrequencyAnalysis::GetEnglishCharFrequency(char c)

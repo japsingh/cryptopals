@@ -22,11 +22,6 @@ bool Utils::IsAlpha(char c)
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-bool Utils::IsPrintable(int c)
-{
-	return (c > 0 && c <= 127) && !!isprint(c);
-}
-
 bool Utils::IsHexDigit(char c)
 {
 	return (IsHexAlpha(c) || IsNumber(c));

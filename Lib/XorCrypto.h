@@ -9,5 +9,5 @@ public:
 	static bool Decrypt(const std::string &ct, byte_t key, std::string &pt);
 	static void Decrypt(const ByteVector &ct, byte_t key, ByteVector &pt);
 
-	static void BruteForceDecrypt(const std::string &ct, byte_t &key, std::string &pt);
+	static bool BruteForceDecrypt(const std::string &ct, byte_t &key, std::string &pt, double &score);
 };

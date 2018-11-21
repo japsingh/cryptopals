@@ -2,7 +2,7 @@
 #include "XorCrypto.h"
 #include "FrequencyAnalysis.h"
 #include "Utils.h"
-
+#include <iostream>
 bool SingleByteXorCrypto::Encrypt(const std::string & ptHexStr, byte_t key, std::string &ctHexStr)
 {
 	ByteVector pt;
@@ -23,8 +23,9 @@ bool SingleByteXorCrypto::Decrypt(const std::string & ct, byte_t key, std::strin
 	return Encrypt(ct, key, pt);
 }
 
-void SingleByteXorCrypto::BruteForceDecrypt(const std::string & ct, byte_t & key, std::string & pt)
+bool SingleByteXorCrypto::BruteForceDecrypt(const std::string & ct, byte_t & key, std::string & pt, double &score)
 {
+	bool ret = false;
 	double leastScore = std::numeric_limits<double>::max();
 	for (int i = 0; i <= 255; ++i) {
 		std::string potential_pt;
@@ -35,12 +36,17 @@ void SingleByteXorCrypto::BruteForceDecrypt(const std::string & ct, byte_t & key
 		if (isnan(d)) {
 			continue;
 		}
+		//std::cout << ascii.c_str() << std::endl;
 
 		if (leastScore > d) {
 			leastScore = d;
 			key = static_cast<byte_t>(i);
 			pt.clear();
 			pt.assign(ascii);
+			ret = true;
 		}
 	}
+
+	score = leastScore;
+	return ret;
 }
