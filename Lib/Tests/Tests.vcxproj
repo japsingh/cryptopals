@@ -102,6 +102,7 @@
     </ClCompile>
     <ClCompile Include="Tests.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="XorCryptoTests.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

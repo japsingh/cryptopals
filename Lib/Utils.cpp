@@ -32,6 +32,13 @@ char Utils::ToUpper(char c)
 	return ((c >= 'a' && c <= 'z') ? (c - 32) : c);
 }
 
+void Utils::ToUpper(std::string &str)
+{
+	for (size_t i = 0; i < str.length(); ++i) {
+		str[i] = ToUpper(str[i]);
+	}
+}
+
 byte_t Utils::LeftNibble(byte_t b)
 {
 	return ((b & 0xF0) >> 4);
@@ -211,5 +218,24 @@ void Utils::XorWithSingleByte(const ByteVector & pt, byte_t rhs, ByteVector & ct
 
 	for (auto b : pt) {
 		ct.push_back(b ^ rhs);
+	}
+}
+
+void Utils::XorWithMultiBytes(const ByteVector & pt, const ByteVector & bytes, ByteVector & ct)
+{
+	ct.clear();
+
+	if (bytes.empty()) {
+		ct = pt;
+		return;
+	}
+
+	auto iter = bytes.begin();
+	for (auto b : pt) {
+		ct.push_back(b ^ *iter);
+		++iter;
+		if (iter == bytes.end()) {
+			iter = bytes.begin();
+		}
 	}
 }

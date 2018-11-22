@@ -10,6 +10,7 @@ public:
 	static bool IsHexAlpha(char c);
 	static bool IsHexDigit(char c);
 	static char ToUpper(char c);
+	static void ToUpper(std::string &str);
 	static byte_t LeftNibble(byte_t b);
 	static byte_t RightNibble(byte_t b);
 
@@ -31,4 +32,5 @@ public:
 		bool hexAlphabetInCaps = true);
 	static bool XorBytes(const ByteVector &lhs, const ByteVector &rhs, ByteVector &result);
 	static void XorWithSingleByte(const ByteVector & pt, byte_t rhs, ByteVector & ct);
+	static void XorWithMultiBytes(const ByteVector & pt, const ByteVector &bytes, ByteVector & ct);
 };

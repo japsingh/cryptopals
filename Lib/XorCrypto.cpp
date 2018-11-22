@@ -3,6 +3,7 @@
 #include "FrequencyAnalysis.h"
 #include "Utils.h"
 #include <iostream>
+
 bool SingleByteXorCrypto::Encrypt(const std::string & ptHexStr, byte_t key, std::string &ctHexStr)
 {
 	ByteVector pt;
@@ -49,4 +50,36 @@ bool SingleByteXorCrypto::BruteForceDecrypt(const std::string & ct, byte_t & key
 
 	score = leastScore;
 	return ret;
+}
+
+bool MultiByteXorCrypto::EncryptHexStr(const std::string & ptHexStr, const ByteVector &key,
+	std::string &ctHexStr)
+{
+	ByteVector pt;
+	ByteVector ct;
+
+	if (!Utils::ConvertHexStringToByteArray(ptHexStr, pt)) {
+		return false;
+	}
+
+	Utils::XorWithMultiBytes(pt, key, ct);
+
+	return Utils::ConvertByteArrayToHexString(ct, ctHexStr);
+}
+
+// Decryption is exactly same as encryption
+bool MultiByteXorCrypto::DecryptHexStr(const std::string & ctHexStr, const ByteVector &key, std::string & ptHexStr)
+{
+	return EncryptHexStr(ctHexStr, key, ptHexStr);
+}
+
+void MultiByteXorCrypto::Encrypt(const ByteVector & pt, const ByteVector &key, ByteVector &ct)
+{
+	Utils::XorWithMultiBytes(pt, key, ct);
+}
+
+// Decryption is exactly same as encryption
+void MultiByteXorCrypto::Decrypt(const ByteVector & ct, const ByteVector &key, ByteVector & pt)
+{
+	return Encrypt(ct, key, pt);
 }
