@@ -83,3 +83,63 @@ void MultiByteXorCrypto::Decrypt(const ByteVector & ct, const ByteVector &key, B
 {
 	return Encrypt(ct, key, pt);
 }
+
+bool GetAverageHammingDistance(const ByteVector &bytes, size_t keySize, double &avgHammingdistance)
+{
+	static const size_t MAX_CHUNKS = 2;
+	std::vector<ByteVector> chunks;
+
+	for (size_t chunkOffset = 0; (chunkOffset + keySize) < bytes.size(); chunkOffset += keySize) {
+		chunks.push_back(ByteVector(bytes.begin() + chunkOffset, bytes.begin() + chunkOffset + keySize));
+		if (chunks.size() == MAX_CHUNKS)
+			break;
+	}
+
+	if (chunks.size() != MAX_CHUNKS) {
+		return false;
+	}
+
+	std::vector<double> hammingDistances;
+	for (size_t i = 1; i < chunks.size(); ++i) {
+		uint32_t hammingDistance = Utils::HammingDistance(chunks[i - 1], chunks[i]);
+		double normalizedHammingDistance = (double)hammingDistance / keySize;
+		hammingDistances.push_back(normalizedHammingDistance);
+	}
+
+	avgHammingdistance = 0;
+
+	for (auto hd : hammingDistances) {
+		avgHammingdistance += hd;
+	}
+
+	avgHammingdistance /= hammingDistances.size();
+}
+
+bool MultiByteXorCrypto::BruteForceDecrypt(const std::string & ct, ByteVector & key, std::string & pt)
+{
+	ByteVector bytes;
+	Utils::ConvertHexStringToByteArray(ct, bytes);
+
+	std::map<size_t, double> avgHammingDistancePerKeySize;
+
+	for (size_t keySize = 2; keySize <= 40; ++keySize) {
+		avgHammingDistancePerKeySize[keySize] = std::numeric_limits<double>::max();
+
+		double avgHammingDistance = 0;
+
+		if (!GetAverageHammingDistance(bytes, keySize, avgHammingDistance)) {
+			continue;
+		}
+
+		avgHammingDistancePerKeySize[keySize] = avgHammingDistance;
+	}
+
+	// Since maps are by default sorted by key, we need to get first 5 elements from the map and compare them
+	size_t elements = 0;
+
+	for (auto iter = avgHammingDistancePerKeySize.begin(); iter != avgHammingDistancePerKeySize.end() && elements < 5; ++iter, ++elements) {
+		if ()
+	}
+
+	return true;
+}

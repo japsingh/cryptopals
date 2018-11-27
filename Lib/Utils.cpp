@@ -49,6 +49,22 @@ byte_t Utils::RightNibble(byte_t b)
 	return (b & 0x0F);
 }
 
+byte_t Utils::BitAt(byte_t b, byte_t pos)
+{
+	byte_t mask = 1 << pos;
+	return (b & mask) >> pos;
+}
+
+byte_t Utils::BitsSet(byte_t b)
+{
+	byte_t bitsSet = 0;
+	for (int i = 0; i < 8; ++i) {
+		bitsSet += BitAt(b, i);
+	}
+
+	return bitsSet;
+}
+
 bool Utils::ConvertHexStringToByteArray(const std::string & hex, ByteVector& byteArray)
 {
 	if (!Utils::IsEven(hex.length())) {
@@ -238,4 +254,38 @@ void Utils::XorWithMultiBytes(const ByteVector & pt, const ByteVector & bytes, B
 			iter = bytes.begin();
 		}
 	}
+}
+
+uint32_t Utils::HammingDistance(const std::string & lhs, const std::string & rhs)
+{
+	ByteVector bytesLhs;
+	ByteVector bytesRhs;
+
+	ConvertAsciiStringToByteArray(lhs, bytesLhs);
+	ConvertAsciiStringToByteArray(rhs, bytesRhs);
+
+	return HammingDistance(bytesLhs, bytesRhs);
+}
+
+uint32_t Utils::HammingDistance(const ByteVector & bytesLhs, const ByteVector & bytesRhs)
+{
+	uint32_t hammingDistance = 0;
+	size_t iterLhs = 0;
+	size_t iterRhs = 0;
+
+	for (; iterLhs < bytesLhs.size() && iterRhs < bytesRhs.size(); ++iterLhs, ++iterRhs) {
+		// No. of differing bits is no. of bits enabled in xor of bytes
+		byte_t x = bytesLhs[iterLhs] ^ bytesRhs[iterRhs];
+		hammingDistance += BitsSet(x);
+	}
+
+	for (; iterLhs < bytesLhs.size(); ++iterLhs) {
+		hammingDistance += BitsSet(bytesLhs[iterLhs]);
+	}
+
+	for (; iterRhs < bytesRhs.size(); ++iterRhs) {
+		hammingDistance += BitsSet(bytesRhs[iterRhs]);
+	}
+
+	return hammingDistance;
 }

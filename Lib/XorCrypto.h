@@ -17,4 +17,6 @@ public:
 	static bool EncryptHexStr(const std::string &ptHexStr, const ByteVector &key, std::string &ctHexStr);
 	static void Decrypt(const ByteVector &ct, const ByteVector &key, ByteVector &pt);
 	static bool DecryptHexStr(const std::string &ctHexStr, const ByteVector &key, std::string &ptHexStr);
+
+	static bool BruteForceDecrypt(const std::string &ct, ByteVector &key, std::string &pt);
 };
