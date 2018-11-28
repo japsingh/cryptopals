@@ -5,9 +5,12 @@ class SingleByteXorCrypto
 {
 public:
 	static bool Encrypt(const std::string &pt, byte_t key, std::string &ct);
+	static void Encrypt(const ByteVector &pt, byte_t key, ByteVector &ct);
 	static bool Decrypt(const std::string &ct, byte_t key, std::string &pt);
+	static void Decrypt(const ByteVector &ct, byte_t key, ByteVector &pt);
 
 	static bool BruteForceDecrypt(const std::string &ct, byte_t &key, std::string &pt, double &score);
+	static bool BruteForceDecrypt(const ByteVector &ct, byte_t &key, ByteVector &pt, double &score);
 };
 
 class MultiByteXorCrypto

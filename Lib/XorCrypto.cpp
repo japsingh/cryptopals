@@ -2,6 +2,7 @@
 #include "XorCrypto.h"
 #include "FrequencyAnalysis.h"
 #include "Utils.h"
+#include "Matrix.h"
 #include <iostream>
 
 bool SingleByteXorCrypto::Encrypt(const std::string & ptHexStr, byte_t key, std::string &ctHexStr)
@@ -18,21 +19,46 @@ bool SingleByteXorCrypto::Encrypt(const std::string & ptHexStr, byte_t key, std:
 	return Utils::ConvertByteArrayToHexString(ct, ctHexStr);
 }
 
+void SingleByteXorCrypto::Encrypt(const ByteVector & pt, byte_t key, ByteVector & ct)
+{
+	Utils::XorWithSingleByte(pt, key, ct);
+}
+
 // Decryption is exactly same as encryption
 bool SingleByteXorCrypto::Decrypt(const std::string & ct, byte_t key, std::string & pt)
 {
 	return Encrypt(ct, key, pt);
 }
 
+void SingleByteXorCrypto::Decrypt(const ByteVector & ct, byte_t key, ByteVector & pt)
+{
+	Encrypt(ct, key, pt);
+}
+
 bool SingleByteXorCrypto::BruteForceDecrypt(const std::string & ct, byte_t & key, std::string & pt, double &score)
+{
+	ByteVector ctBytes;
+	if (!Utils::ConvertHexStringToByteArray(ct, ctBytes)) {
+		return false;
+	}
+
+	ByteVector ptBytes;
+	if (!BruteForceDecrypt(ctBytes, key, ptBytes, score)) {
+		return false;
+	}
+
+	return Utils::ConvertByteArrayToAsciiString(ptBytes, pt);
+}
+
+bool SingleByteXorCrypto::BruteForceDecrypt(const ByteVector & ct, byte_t & key, ByteVector & pt, double & score)
 {
 	bool ret = false;
 	double leastScore = std::numeric_limits<double>::max();
 	for (int i = 0; i <= 255; ++i) {
-		std::string potential_pt;
+		ByteVector potential_pt;
 		SingleByteXorCrypto::Decrypt(ct, static_cast<byte_t>(i), potential_pt);
 		std::string ascii;
-		Utils::ConvertHexStringToAsciiString(potential_pt, ascii);
+		Utils::ConvertByteArrayToAsciiString(potential_pt, ascii);
 		double d = FrequencyAnalysis::GetEnglishStringFrequencyScore(ascii);
 		if (isnan(d)) {
 			continue;
@@ -43,7 +69,7 @@ bool SingleByteXorCrypto::BruteForceDecrypt(const std::string & ct, byte_t & key
 			leastScore = d;
 			key = static_cast<byte_t>(i);
 			pt.clear();
-			pt.assign(ascii);
+			Utils::ConvertAsciiStringToByteArray(ascii, pt);
 			ret = true;
 		}
 	}
@@ -113,6 +139,7 @@ bool GetAverageHammingDistance(const ByteVector &bytes, size_t keySize, double &
 	}
 
 	avgHammingdistance /= hammingDistances.size();
+	return true;
 }
 
 bool MultiByteXorCrypto::BruteForceDecrypt(const std::string & ct, ByteVector & key, std::string & pt)
@@ -134,11 +161,34 @@ bool MultiByteXorCrypto::BruteForceDecrypt(const std::string & ct, ByteVector & 
 		avgHammingDistancePerKeySize[keySize] = avgHammingDistance;
 	}
 
-	// Since maps are by default sorted by key, we need to get first 5 elements from the map and compare them
-	size_t elements = 0;
+	// Since maps are by default sorted by key, we need sorting by avg hamming distance instead, so create new map
+	std::map<double, size_t> sortedByAvgHammingDistance;
+	static const size_t MAX_ATTEMPTS = 1;
+	size_t attempts = 0;
 
-	for (auto iter = avgHammingDistancePerKeySize.begin(); iter != avgHammingDistancePerKeySize.end() && elements < 5; ++iter, ++elements) {
-		if ()
+	for (auto iter = avgHammingDistancePerKeySize.begin(); iter != avgHammingDistancePerKeySize.end() && attempts < MAX_ATTEMPTS; ++iter, ++attempts) {
+		size_t keySize = iter->first;
+		ByteVector2d byteVector2d;
+		if (!Matrix::Convert1dTo2d(bytes, keySize, byteVector2d)) {
+			continue;
+		}
+
+		ByteVector2d transpose;
+		if (!Matrix::Transpose(byteVector2d, transpose)) {
+			continue;
+		}
+
+		ByteVector multiByteKey;
+		for (auto &row : transpose) {
+			byte_t singleByteKey{};
+			ByteVector pt;
+			double score{};
+			if (!SingleByteXorCrypto::BruteForceDecrypt(row, singleByteKey, pt, score)) {
+				break;
+			}
+
+			multiByteKey.push_back(singleByteKey);
+		}
 	}
 
 	return true;
